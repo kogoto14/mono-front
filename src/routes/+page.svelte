@@ -33,6 +33,16 @@
             clearInterval(id);
         }
     });
+
+    // 3. Props
+    import PackageInfo from './PackageInfo.svelte';
+    const pkg = {
+        name: 'svelte',
+        version: '5',
+        description: 'blazing fast',
+        website: 'https://svelte.dev'
+    };
+    
 </script>
 
 <!-- 1. Introduction -->
@@ -71,3 +81,8 @@
 <Counter />
 <Counter />
 <Counter />
+
+<!-- 3. Props -->
+<Nested answer="42" />
+<Nested />
+<PackageInfo {...pkg} />
