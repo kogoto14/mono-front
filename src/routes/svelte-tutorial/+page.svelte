@@ -1,7 +1,7 @@
 <script lang="ts">
 
     // 1. Introduction
-    import Nested from './Nested.svelte'; 
+    import Nested from '../svelte-tutorial/Nested.svelte';
 
     let name = 'Svelte';
     let src = '/tutorial/image.gif';
@@ -9,7 +9,7 @@
 
 
     // 2. Reactivity
-    import Counter from './Counter.svelte';
+    import Counter from '../svelte-tutorial/Counter.svelte';
 
     let count = $state(0);
     let numbers = $state([1 ,2 ,3, 4]);
@@ -38,7 +38,7 @@
 
 
     // 3. Props
-    import PackageInfo from './PackageInfo.svelte';
+    import PackageInfo from '../svelte-tutorial/PackageInfo.svelte';
 
     const pkg = {
         name: 'svelte',
@@ -49,8 +49,8 @@
 
 
     // 4. Logic
-    import Thing from './Thing.svelte';
-    import { roll } from './utils.js';
+    import Thing from '../svelte-tutorial/Thing.svelte';
+    import { roll } from '../svelte-tutorial/utils.js';
 
     const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
     let selected = $state(colors[0]);
@@ -65,8 +65,8 @@
     
 
     // 5. Events
-    import Stepper from './Stepper.svelte';
-    import BigRedButton from './BigRedButton.svelte';
+    import Stepper from '../svelte-tutorial/Stepper.svelte';
+    import BigRedButton from '../svelte-tutorial/BigRedButton.svelte';
     import horn from './horn.mp3';
 
     let m = $state({ x: 0, y: 0});
