@@ -2,6 +2,7 @@
 
     // 1. Introduction
     import Nested from './Nested.svelte'; 
+
     let name = 'Svelte';
     let src = '/tutorial/image.gif';
     let string = 'this string contains some <strong>HTML!!!</strong>'
@@ -9,6 +10,7 @@
 
     // 2. Reactivity
     import Counter from './Counter.svelte';
+
     let count = $state(0);
     let numbers = $state([1 ,2 ,3, 4]);
     let total = $derived(numbers.reduce((t, n) => t + n, 0));
@@ -34,8 +36,10 @@
         }
     });
 
+
     // 3. Props
     import PackageInfo from './PackageInfo.svelte';
+
     const pkg = {
         name: 'svelte',
         version: '5',
@@ -43,9 +47,11 @@
         website: 'https://svelte.dev'
     };
 
+
     // 4. Logic
     import Thing from './Thing.svelte';
     import { roll } from './utils.js';
+
     const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
     let selected = $state(colors[0]);
     let things = $state([
@@ -56,19 +62,58 @@
         { id: 5, name: 'egg' }
     ]);
     let promise =$state(roll());
+    
 
     // 5. Events
     import Stepper from './Stepper.svelte';
     import BigRedButton from './BigRedButton.svelte';
     import horn from './horn.mp3';
+
     let m = $state({ x: 0, y: 0});
     let value = $state(0);
-    const audio = new Audio();
-    audio.src = horn;
 
     function honk() {
+        const audio = new Audio();
+        audio.src = horn;
         audio.load();
         audio.play();
+    }
+
+    // 6. Bindings
+    import { marked } from 'marked';
+
+    let nameForBind = $state('world');
+    let a = $state(1);
+    let b = $state(2);
+    let yes = $state(false);
+    let questions = $state([
+        {
+            id: 1,
+            text: `Where did you go to school?`
+        },
+        {
+			id: 2,
+			text: `What is your mother's name?`
+		},
+		{
+			id: 3,
+			text: `What is another personal fact that an attacker could easily find with Google?`
+		}
+    ]);
+    let selectedQuestion = $state(questions[0]);
+    let answer = $state('');
+    let scoops = $state(1);
+    let flavours = $state([]);
+    let textAreaValue = $state(`Some words are *italic*, some are **bold**\n\n- lists\n- are\n- cool`);
+
+    const formatter = new Intl.ListFormat('en', { style: 'long', type: 'conjunction'})
+
+    function handleSubmit(e: Event) {
+        e.preventDefault();
+
+        alert(
+            `answered question ${selectedQuestion.id} ${selectedQuestion.text} with "${answer}"`
+        );
     }
 </script>
 
@@ -178,6 +223,123 @@
 
 <BigRedButton onclick={honk}/>
 
+
+<!-- 6. Bindings -->
+<input bind:value={nameForBind} />
+<p>Hello {nameForBind}! </p>
+
+<label>
+    <input type="number" bind:value={a} min="0" max="10" />
+    <input type="range" bind:value={a} min="0" max="10" />
+</label>
+
+<label>
+    <input type="number" bind:value={b} min="0" max="10" />
+    <input type="range" bind:value={b} min="0" max="10" />
+</label>
+
+<p>{a} + {b} = {a + b}</p>
+
+<label>
+    <input type="checkbox" bind:checked={yes} />
+    Yes! Send me regular email spam
+</label>
+
+{#if yes}
+    <p>
+        Thank you. We will bombard your inbox and sell
+        Your personal details.
+    </p>
+{:else}
+    <p>
+        You must opt in to contnue. If your're not
+        paying, your're the product.
+    </p>
+{/if}
+
+<button disabled={!yes}>Subscribe</button>
+
+<h2>Insequrity questions</h2>
+
+<form onsubmit={handleSubmit}>
+    <select
+        bind:value={selectedQuestion}
+        onchange={() => (answer = '')}
+    >
+        {#each questions as question}
+            <option value={question}>
+                {question.text}
+            </option>
+        {/each}
+    </select>
+    <input bind:value={answer} />
+    <button disabled={!answer} type="submit">
+        Submit
+    </button>
+</form>
+
+<p>
+    selected question {selectedQuestion
+        ? selectedQuestion.id
+        : '[waiting...]'
+    }
+</p>
+
+<h2>Size</h2>
+
+{#each [1, 2, 3] as number}
+    <label>
+        <input
+            type="radio"
+            name="scoops"
+            value={number}
+            bind:group={scoops}
+        />
+
+        {number} {number === 1 ? 'scoop' : 'scoops'}
+    </label>
+{/each}
+
+<h2>Flabours</h2>
+
+<select multiple bind:value={flavours}>
+    {#each ['cookies and cream', 'mint choc chip', 'raspberry ripple'] as flavour}
+        <option>{flavour}</option>
+    {/each}
+</select>
+
+<!-- {#each ['cookies and cream', 'mint choc chip', 'raspberry ripple'] as flavour}
+    <label>
+        <input
+            type="checkbox"
+            name="flavours"
+            value={flavour}
+            bind:group={flavours}
+        />
+
+        {flavour}
+    </label>
+{/each} -->
+
+{#if flavours.length === 0}
+    <p>Please select at least one flavour</p>
+{:else if flavours.length > scoops}
+    <p>Can't order more flavours than scoops!</p>
+{:else}
+    <p>
+        You orderd {scoops} {scoops === 1 ? 'scoop' : 'scoops'}
+        of {formatter.format(flavours)}
+    </p>
+{/if}
+
+<div class="grid">
+    input
+    <textarea bind:value={textAreaValue}></textarea>
+
+    output
+    <div>{@html marked(textAreaValue)}</div>
+</div>
+
 <style>
     /* 1. Introduction */
     p {
@@ -227,4 +389,18 @@
         height: 100%;
         padding: 1rem;
     }
+
+    .grid {
+		display: grid;
+		grid-template-columns: 5em 1fr;
+		grid-template-rows: 1fr 1fr;
+		grid-gap: 1em;
+		height: 100%;
+	}
+
+    /* 6. Bindings */
+	textarea {
+		flex: 1;
+		resize: none;
+	}
 </style>
