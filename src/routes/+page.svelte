@@ -56,48 +56,21 @@
         { id: 5, name: 'egg' }
     ]);
     let promise =$state(roll());
-</script>
 
-<style>
-    /* 1. Introduction */
-    p {
-        color: goldenrod;
-        front-family: 'Comic Sans MS', cursive;
-        font-size: 2em;
+    // 5. Events
+    import Stepper from './Stepper.svelte';
+    import BigRedButton from './BigRedButton.svelte';
+    import horn from './horn.mp3';
+    let m = $state({ x: 0, y: 0});
+    let value = $state(0);
+    const audio = new Audio();
+    audio.src = horn;
+
+    function honk() {
+        audio.load();
+        audio.play();
     }
-
-    /* 4. Logic */
-    h1 {
-		font-size: 2rem;
-		font-weight: 700;
-		transition: color 0.2s;
-	}
-
-	div {
-		display: grid;
-		grid-template-columns: repeat(7, 1fr);
-		grid-gap: 5px;
-		max-width: 400px;
-	}
-
-	button {
-		aspect-ratio: 1;
-		border-radius: 50%;
-		background: var(--color, #fff);
-		transform: translate(-2px,-2px);
-		filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
-		transition: all 0.1s;
-		color: black;
-		font-weight: 700;
-		font-size: 2rem;
-	}
-
-	button[aria-current="true"] {
-		transform: none;
-		filter: none;
-		box-shadow: inset 3px 3px 4px rgba(0,0,0,0.2);
-	}
-</style>
+</script>
 
 <!-- 1. Introduction -->
 <h1>Hello {name.toUpperCase()}!</h1>
@@ -149,9 +122,10 @@
 {/if}
 
 <h1 style="color: {selected}">Pick a colour</h1>
-<div>
+<div class='each'>
     {#each colors as color, i}
         <button
+            name={`color_${i}`}
             style="background: {color}"
             aria-label={color}
             aria-current={selected === color}
@@ -179,3 +153,78 @@
 {:catch error}
     <p style="color: red">{error.message}</p>
 {/await}
+
+
+<!-- 5. Events -->
+<div 
+    class='event' 
+    onpointermove={(event) => {
+        m.x = event.clientX;
+        m.y = event.clientY;
+    }}
+>
+    The pointer is at {Math.round(m.x)} x {Math.round(m.y)}
+</div>
+
+<div onkeydowncapture={(e) => alert(`<div> ${e.key}`)} role="presentation">
+	<input onkeydowncapture={(e) => alert(`<input> ${e.key}`)} />
+</div>
+
+<p>The current value is {value}</p>
+<Stepper 
+    increment={() => value += 1}
+    decrement={() => value -= 1}
+/>
+
+<BigRedButton onclick={honk}/>
+
+<style>
+    /* 1. Introduction */
+    p {
+        color: goldenrod;
+        front-family: 'Comic Sans MS', cursive;
+        font-size: 2em;
+    }
+
+    /* 4. Logic */
+    h1 {
+		font-size: 2rem;
+		font-weight: 700;
+		transition: color 0.2s;
+	}
+
+    .each {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        grid-gap: 5px;
+        max-width: 400px;
+    }
+
+	[name^='color_']  {
+		aspect-ratio: 1;
+		border-radius: 50%;
+		background: var(--color, #fff);
+		transform: translate(-2px,-2px);
+		filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
+		transition: all 0.1s;
+		color: black;
+		font-weight: 700;
+		font-size: 2rem;
+	}
+
+	button[aria-current="true"] {
+		transform: none;
+		filter: none;
+		box-shadow: inset 3px 3px 4px rgba(0,0,0,0.2);
+	}
+
+    /* 5. Events */
+    .event {
+        /* position: fixed; */
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        padding: 1rem;
+    }
+</style>
