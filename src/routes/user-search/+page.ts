@@ -13,7 +13,7 @@ export const load: PageLoad = async ({url, fetch}) => {
     const sortKey = url.searchParams.get('_sort') || 'id'
     const sortOrder = url.searchParams.get('_order') || 'ASC'
     const currentPage = url.searchParams.get('_page') || '1'
-    const limit = url.searchParams.get('_limit') || '10'
+    const limit = url.searchParams.get('_limit') || '5'
     
     const queryParams = new URLSearchParams();
     if(searchUserId) queryParams.append('id', searchUserId);
