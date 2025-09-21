@@ -12,23 +12,23 @@ type UserDetail = {
 };
 
 export const load: PageLoad = async ({ params, fetch }) => { 
-    const userDetailEndPoint = 'http://localhost:3000/user-details';
+    const userDetailEndPoint = '/users';
 
     try {
-        const response = await fetch(`${userDetailEndPoint}?id=${params.userId}`);
+        const response = await fetch(`${userDetailEndPoint}/${params.userId}`);
 
         if(!response.ok) {
             throw error(response.status, 'ユーザーの取得に失敗しました。');
         }
     
-        const data: UserDetail[] = await response.json();
+        const data: UserDetail = await response.json();
     
-        if(data.length === 0 ) {
+        if(!data) {
             throw error(500, 'ユーザーが見つかりません。');
         }
     
         return {
-            userDetail: data[0]
+            userDetail: data
         }
     } catch (e) {
 		if (e instanceof Error && e.message.includes('fetch failed')) {

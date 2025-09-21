@@ -13,11 +13,11 @@
     let pagenatedusers = $derived(data.userSummaries);
 
     // ソート
-    let sortKey = $state('id');
-    let sortOrder = $state('asc');
+    let sortKey = $state(data.sortKey);
+    let sortOrder = $state(data.sortOrder);
     
     // ページネーション
-    let limit = 3
+    let limit = $state(Number(data.limit));
     let currentPage = $state(1);
     let totalPages = $state(Math.ceil(totalUsers / limit));
 
@@ -31,6 +31,8 @@
         const params = new URLSearchParams();
         if(searchUserId) params.append('id', searchUserId);
         if(searchUserName) params.append('_name_like', searchUserName);
+        if(sortKey) params.append('_sort', sortKey);
+        if(sortOrder) params.append('_order', sortOrder);
         if(currentPage) params.append('_page', currentPage.toString());
         if(limit) params.append('_limit', limit.toString());
         

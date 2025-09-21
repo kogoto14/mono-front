@@ -7,14 +7,24 @@ type UserSummary = {
 };
 
 export const load: PageLoad = async ({url, fetch}) => {
-    const usersEndPoint = 'http://localhost:3000/users';
+    const usersEndPoint = '/users';
     const searchUserId = url.searchParams.get('id') || ''
     const searchUserName = url.searchParams.get('_name_like') || ''
+    const sortKey = url.searchParams.get('_sort') || 'id'
+    const sortOrder = url.searchParams.get('_order') || 'ASC'
+    const currentPage = url.searchParams.get('_page') || '1'
+    const limit = url.searchParams.get('_limit') || '10'
     
+    const queryParams = new URLSearchParams();
+    if(searchUserId) queryParams.append('id', searchUserId);
+    if(searchUserName) queryParams.append('_name_like', searchUserName);
+    if(sortKey) queryParams.append('_sort', sortKey);
+    if(sortOrder) queryParams.append('_order', sortOrder);
+    if(currentPage) queryParams.append('_page', currentPage);
+    if(limit) queryParams.append('_limit', limit);
+
     try {
-        const queryParams = buildSearchParams(url, searchUserId, searchUserName);
-        const requestUrl = `${usersEndPoint}?${queryParams.toString()}`;
-        const response = await fetch(requestUrl);
+        const response = await fetch(usersEndPoint+'?'+queryParams.toString());
 
         if(!response.ok) {
             throw error(response.status, 'ユーザーの取得に失敗しました。');
@@ -27,7 +37,11 @@ export const load: PageLoad = async ({url, fetch}) => {
             totalCount: totalCount,
             userSummaries: userSummaries,
             searchUserId: searchUserId,
-            searchUserName: searchUserName
+            searchUserName: searchUserName,
+            sortKey: sortKey,
+            sortOrder: sortOrder,
+            currentPage: currentPage,
+            limit: limit
         };
     } catch(e) {
 		if (e instanceof Error && e.message.includes('fetch failed')) {
@@ -37,19 +51,3 @@ export const load: PageLoad = async ({url, fetch}) => {
     }
 }
 
-function buildSearchParams(url: URL, searchUserId: string, searchUserName: string) {
-    const currentPage = url.searchParams.get('_page') || ''
-    const limit = url.searchParams.get('_limit') || ''
-    const sortKey = url.searchParams.get('_sort') || ''
-    const sortOrder = url.searchParams.get('_order') || ''
-
-    const params = new URLSearchParams();
-    if(searchUserId) params.append('id', searchUserId);
-    if(searchUserName) params.append('_name_like', searchUserName);
-    if(currentPage) params.append('_page', currentPage);
-    if(limit) params.append('_limit', limit);
-    if(sortKey) params.append('_sort', sortKey);
-    if(sortOrder) params.append('_order', sortOrder);
-
-    return params;
-}
