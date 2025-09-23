@@ -1,10 +1,6 @@
 import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
-
-type UserSummary = {
-    id: number,
-    name: string,
-};
+import type { UserSummary } from '$lib/types/types';
 
 export const load: PageLoad = async ({url, fetch}) => {
     const usersEndPoint = '/users';
@@ -23,31 +19,19 @@ export const load: PageLoad = async ({url, fetch}) => {
     if(currentPage) queryParams.append('_page', currentPage);
     if(limit) queryParams.append('_limit', limit);
 
-    try {
-        const response = await fetch(usersEndPoint+'?'+queryParams.toString());
+    const response = await fetch(usersEndPoint+'?'+queryParams.toString());
+    if(!response.ok) throw error(response.status, 'ユーザーの取得に失敗しました。');
+    const totalCount = Number(response.headers.get('X-Total-Count') || '0');
+    const userSummaries: UserSummary[] = await response.json();
 
-        if(!response.ok) {
-            throw error(response.status, 'ユーザーの取得に失敗しました。');
-        }
-
-        const totalCount = Number(response.headers.get('X-Total-Count') || '0');
-        const userSummaries: UserSummary[] = await response.json();
-
-        return {
-            totalCount: totalCount,
-            userSummaries: userSummaries,
-            searchUserId: searchUserId,
-            searchUserName: searchUserName,
-            sortKey: sortKey,
-            sortOrder: sortOrder,
-            currentPage: currentPage,
-            limit: limit
-        };
-    } catch(e) {
-		if (e instanceof Error && e.message.includes('fetch failed')) {
-			throw error(503, 'APIサーバーへの接続に失敗しました。');
-		}
-		throw e;
-    }
+    return {
+        totalCount: totalCount,
+        userSummaries: userSummaries,
+        searchUserId: searchUserId,
+        searchUserName: searchUserName,
+        sortKey: sortKey,
+        sortOrder: sortOrder,
+        currentPage: currentPage,
+        limit: limit
+    };
 }
-
