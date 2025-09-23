@@ -19,10 +19,18 @@ export const load: PageLoad = async ({url, fetch}) => {
     if(currentPage) queryParams.append('_page', currentPage);
     if(limit) queryParams.append('_limit', limit);
 
-    const response = await fetch(usersEndPoint+'?'+queryParams.toString());
-    if(!response.ok) throw error(response.status, 'ユーザーの取得に失敗しました。');
-    const totalCount = Number(response.headers.get('X-Total-Count') || '0');
-    const userSummaries: UserSummary[] = await response.json();
+    let totalCount = 0;
+    let userSummaries: UserSummary[] = [];
+
+    try {
+        const response = await fetch(usersEndPoint+'?'+queryParams.toString());
+        if(!response.ok) throw error(response.status, 'ユーザーの取得に失敗しました。');
+        totalCount = Number(response.headers.get('X-Total-Count') || '0');
+        userSummaries = await response.json();
+    } catch (e) {
+        console.error(e);
+        throw error(503, 'サーバーに接続できませんでした。');
+    }
 
     return {
         totalCount: totalCount,

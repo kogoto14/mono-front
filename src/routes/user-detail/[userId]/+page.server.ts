@@ -22,20 +22,29 @@ export const actions: Actions = {
         };
 
         const parsed = userSchema.safeParse(values);
-        if(!parsed.success) return fail(400, { errors: parsed.error.flatten().fieldErrors, values: values });
+        if(!parsed.success) return fail(400, { errors: parsed.error.flatten().fieldErrors });
 
-        const response = await fetch(`/users/${params.userId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(values)
-        });
-        
-        if(!response.ok) return fail(response.status, { errors: { default: '更新に失敗しました。' }, values: values });
+        try {
+            const response = await fetch(`/users/${params.userId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(values)
+            });
+            if(!response.ok) return fail(response.status, { errors: { default: '更新に失敗しました。' }});
+        } catch (e) {
+            console.error(e);
+            return fail(503, { errors: { default: 'サーバーに接続できませんでした。' }});
+        }
         throw redirect(302, '/user-search');
     },
     delete: async ({ params, fetch }) => {
-        const response = await fetch(`/users/${params.userId}`, { method: 'DELETE' });
-        if(!response.ok) return fail(response.status, { errors: { default: '削除に失敗しました。' } });
+        try {
+            const response = await fetch(`/users/${params.userId}`, { method: 'DELETE' });
+            if(!response.ok) return fail(response.status, { errors: { default: '削除に失敗しました。' } });            
+        } catch (e) {
+            console.error(e);
+            return fail(503, { errors: { default: 'サーバーに接続できませんでした。' } });
+        }        
         throw redirect(302, '/user-search');
     }
 }

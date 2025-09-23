@@ -12,22 +12,19 @@ export const actions = {
         };
 
         const parsed = userSchema.safeParse(values);
-        if(!parsed.success) {
-            return fail(400, { errors: parsed.error.flatten().fieldErrors, values: values });
+        if(!parsed.success) { return fail(400, { errors: parsed.error.flatten().fieldErrors, values: values }); }
+
+        try {
+            const response = await fetch('/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(values)
+            }); 
+            if(!response.ok) { return fail(response.status, { errors: { default: '登録に失敗しました。' }, values: values }); }
+        } catch (e) {
+            console.error(e);
+            return fail(503, { errors: { default: 'サーバーに接続できませんでした。' } });
         }
-
-        const response = await fetch('/users', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(values)
-        });
-
-        if(!response.ok) {
-            return fail(response.status, { errors: { default: '登録に失敗しました。' }, values: values });
-        }
-
         throw redirect(302, '/user-search');
-    } 
+    }
 }
