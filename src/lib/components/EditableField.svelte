@@ -7,11 +7,11 @@
 </script>
 
 {#if isEditing}
-    <input type={type} bind:value on:blur={() => isEditing = false} />
+    <input type={type} bind:value onblur={() => isEditing = false} />
 {:else}
     <div class="editable-field">
         <span>{value}</span>
-        <button type="button" on:click={() => isEditing = true} class="icon-button">✏️</button>
+        <button type="button" onclick={() => isEditing = true} class="icon-button">✏️</button>
     </div>
 {/if}
 
